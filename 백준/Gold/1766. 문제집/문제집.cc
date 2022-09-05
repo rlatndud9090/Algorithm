@@ -12,34 +12,37 @@ int main() {
     int start_q = 1;
 
     vector<vector<int>> next_q(n+1);
-    vector<set<int>> prev_q(n+1);
+    vector<int> in_degree(n+1, 0);
 
     for (int i = 0; i < m; i++) {
         int a, b;
         cin >> a >> b;
         next_q[a].emplace_back(b);
-        prev_q[b].emplace(a);
+        in_degree[b] += 1;
     }
 
-    priority_queue<int, vector<int>, greater<int>> min_heap;
+    priority_queue<int, vector<int>, greater<int>> solve_queue;
+    set<int> visited;
 
     for (int i = 1; i <= n; i++) {
-        if (prev_q[i].size() == 0) {
-            min_heap.push(i);
+        if (in_degree[i] == 0) {
+            solve_queue.push(i);
         }
     }
 
-    int count = n;
-    while (count-- > 0) {
-        int cur = min_heap.top();
-        min_heap.pop();
-        cout << cur << " ";
-        for (int next: next_q[cur]) {
-            prev_q[next].erase(cur);
-            if (prev_q[next].size() == 0) {
-                min_heap.push(next);
+    while (!solve_queue.empty()) {
+        int cur = solve_queue.top();
+        solve_queue.pop();
+        if (visited.find(cur) == visited.end()) {
+            for (int next : next_q[cur]) {
+                in_degree[next] -= 1;
+                if (in_degree[next] == 0) {
+                    solve_queue.push(next);
+                }
             }
+            visited.emplace(cur);
         }
+        cout << cur << " ";
     }
 
     return 0;
